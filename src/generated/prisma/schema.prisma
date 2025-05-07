@@ -1,0 +1,229 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Model untuk autentikasi NextAuth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Model untuk Pengguna yang terintegrasi dengan NextAuth
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  password      String
+  name          String
+  image         String?
+  telepon       String?
+  peran         Peran @default(PENGGUNA)
+  emailVerified DateTime?
+  roleId        String?
+  role          Role?         @relation(fields: [roleId], references: [id])
+  accounts      Account[]
+  sessions      Session[]
+  pemesanan     Pemesanan[]
+  ulasan        Ulasan[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum Peran {
+  ADMIN
+  STAFF
+  PENGGUNA
+}
+
+// Model untuk Role dan Permission
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String?
+  users       User[]
+  permissions Permission[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  roles       Role[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Model untuk Hotel
+model Hotel {
+  id        String      @id @default(cuid())
+  nama      String
+  deskripsi String      @db.Text
+  alamat    String
+  kota      String
+  negara    String
+  rating    Float       @default(0)
+  gambar    Gambar[]
+  kamar     Kamar[]
+  ulasan    Ulasan[]
+  fasilitas Fasilitas[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// Model untuk Kamar Hotel
+model Kamar {
+  id        String      @id @default(cuid())
+  hotelId   String
+  hotel     Hotel       @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  nama      String
+  deskripsi String      @db.Text
+  harga     Float
+  kapasitas Int
+  tipe      TipeKamar
+  status    StatusKamar @default(TERSEDIA)
+  gambar    Gambar[]
+  pemesanan Pemesanan[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+enum TipeKamar {
+  STANDAR
+  DELUXE
+  SUITE
+  EKSEKUTIF
+}
+
+enum StatusKamar {
+  TERSEDIA
+  DIPESAN
+  PERBAIKAN
+}
+
+// Model untuk Pemesanan
+model Pemesanan {
+  id               String          @id @default(cuid())
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kamarId          String
+  kamar            Kamar           @relation(fields: [kamarId], references: [id], onDelete: Cascade)
+  checkIn          DateTime
+  checkOut         DateTime
+  totalHarga       Float
+  status           StatusPemesanan @default(MENUNGGU)
+  jumlahTamu       Int
+  permintaanKhusus String?         @db.Text
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  pembayaran       Pembayaran?
+}
+
+enum StatusPemesanan {
+  MENUNGGU
+  DIKONFIRMASI
+  DIBATALKAN
+  SELESAI
+}
+
+// Model untuk Pembayaran
+model Pembayaran {
+  id               String           @id @default(cuid())
+  pemesananId      String           @unique
+  pemesanan        Pemesanan        @relation(fields: [pemesananId], references: [id], onDelete: Cascade)
+  jumlah           Float
+  metodePembayaran String
+  status           StatusPembayaran
+  idTransaksi      String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+enum StatusPembayaran {
+  MENUNGGU
+  DIBAYAR
+  GAGAL
+  DIKEMBALIKAN
+}
+
+// Model untuk Ulasan
+model Ulasan {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotelId   String
+  hotel     Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  rating    Int      @db.SmallInt
+  komentar  String   @db.Text
+  gambar    Gambar[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Model untuk Gambar
+model Gambar {
+  id        String   @id @default(cuid())
+  url       String
+  hotelId   String?
+  hotel     Hotel?   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  kamarId   String?
+  kamar     Kamar?   @relation(fields: [kamarId], references: [id], onDelete: Cascade)
+  ulasanId  String?
+  ulasan    Ulasan?  @relation(fields: [ulasanId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// Model untuk Fasilitas Hotel
+model Fasilitas {
+  id        String   @id @default(cuid())
+  nama      String
+  ikon      String
+  hotelId   String
+  hotel     Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([nama, hotelId])
+}
