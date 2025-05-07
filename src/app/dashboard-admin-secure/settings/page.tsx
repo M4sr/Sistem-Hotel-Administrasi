@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+export const dynamic = "force-dynamic";
 import { useSession } from 'next-auth/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+export const dynamic = "force-dynamic";
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useDropzone } from 'react-dropzone'
 import Image from 'next/image'
-import Select from 'react-select'
 import {
   Select as ShadcnSelect,
   SelectContent,

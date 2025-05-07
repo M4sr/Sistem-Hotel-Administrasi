@@ -13,7 +13,7 @@ import {
   Image,
   Sparkles
 } from "lucide-react"
-import { PERMISSIONS } from "@/lib/roles"
+import { PERMISSIONS } from "@/lib/permissions"
 
 export const sidebarData = {
   user: {

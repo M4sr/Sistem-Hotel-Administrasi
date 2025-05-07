@@ -1,6 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
+export const dynamic = "force-dynamic";
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Edit, Trash } from "lucide-react"
 import {

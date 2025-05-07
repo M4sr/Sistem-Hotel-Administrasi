@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+export const dynamic = "force-dynamic";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Building2Icon, CalendarIcon, UsersIcon, DollarSignIcon, TrendingUpIcon, StarIcon, BedDoubleIcon, ClockIcon } from "lucide-react"
 import { Progress } from "@/components/ui/progress"

@@ -92,39 +92,39 @@ export default function DashboardLayout({
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <SessionProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
-              <div className="flex items-center gap-2">
-                <SidebarTrigger className="-ml-1" />
-                <Separator orientation="vertical" className="mr-2 h-4" />
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    {breadcrumbItems.map((item, index) => (
-                      <React.Fragment key={item.href}>
-                    <BreadcrumbItem>
-                          {item.isCurrent ? (
-                            <BreadcrumbPage>{item.title}</BreadcrumbPage>
-                          ) : (
-                            <BreadcrumbLink href={item.href}>{item.title}</BreadcrumbLink>
-                          )}
-                    </BreadcrumbItem>
-                        {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
-                      </React.Fragment>
-                    ))}
-                  </BreadcrumbList>
-                </Breadcrumb>
-              </div>
-              <ThemeToggle />
-            </header>
-            <div className="flex-1 overflow-y-auto p-8">
-              {children}
+    <SessionProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  {breadcrumbItems.map((item, index) => (
+                    <React.Fragment key={item.href}>
+                  <BreadcrumbItem>
+                        {item.isCurrent ? (
+                          <BreadcrumbPage>{item.title}</BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink href={item.href}>{item.title}</BreadcrumbLink>
+                        )}
+                  </BreadcrumbItem>
+                      {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
+                    </React.Fragment>
+                  ))}
+                </BreadcrumbList>
+              </Breadcrumb>
             </div>
-          </SidebarInset>
-        </SidebarProvider>
-      </SessionProvider>
+            <ThemeToggle />
+          </header>
+          <div className="flex-1 overflow-y-auto p-8">
+            {children}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </SessionProvider>
     </ThemeProvider>
   )
 } 
