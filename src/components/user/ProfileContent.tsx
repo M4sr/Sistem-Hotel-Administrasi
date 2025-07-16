@@ -581,7 +581,7 @@ export default function ProfileContent({ active, onChange }: { active?: string, 
                 Nantikan update terbaru dari kami ya!
               </p>
               <span className="inline-block bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full text-sm font-semibold shadow">Maintenance Mode</span>
-              <p className="mt-6 text-pink-500 italic text-center text-base font-medium">Salam hangat dari kami, saudara <span className="font-bold">jokita.id</span></p>
+              <p className="mt-6 text-pink-500 italic text-center text-base font-medium">Salam hangat dari kami, saudara <span className="font-bold">iribilangbos.id</span></p>
             </div>
           </motion.div>
         ) : (

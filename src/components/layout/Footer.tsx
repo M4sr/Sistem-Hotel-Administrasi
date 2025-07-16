@@ -13,23 +13,23 @@ import {
 
 const Footer = () => {
   const footerLinks = {
-    company: [
-      { name: "Tentang Kami", href: "/about" },
-      { name: "Karir", href: "/careers" },
-      { name: "Blog", href: "/blog" },
-      { name: "Press", href: "/press" },
-    ],
-    support: [
-      { name: "Bantuan", href: "/help" },
-      { name: "Kontak", href: "/contact" },
-      { name: "FAQ", href: "/faq" },
-      { name: "Kebijakan Privasi", href: "/privacy" },
-    ],
-    legal: [
-      { name: "Syarat & Ketentuan", href: "/terms" },
-      { name: "Kebijakan Cookie", href: "/cookies" },
-      { name: "Lisensi", href: "/license" },
-    ],
+    // company: [
+    //   { name: "Tentang Kami", href: "/about" },
+    //   { name: "Karir", href: "/careers" },
+    //   { name: "Blog", href: "/blog" },
+    //   { name: "Press", href: "/press" },
+    // ],
+    // support: [
+    //   { name: "Bantuan", href: "/help" },
+    //   { name: "Kontak", href: "/contact" },
+    //   { name: "FAQ", href: "/faq" },
+    //   { name: "Kebijakan Privasi", href: "/privacy" },
+    // ],
+    // legal: [
+    //   { name: "Syarat & Ketentuan", href: "/terms" },
+    //   { name: "Kebijakan Cookie", href: "/cookies" },
+    //   { name: "Lisensi", href: "/license" },
+    // ],
   };
 
   return (
@@ -37,7 +37,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -57,13 +57,13 @@ const Footer = () => {
               </div>
               <div className="flex items-center text-gray-400">
                 <MapPinIcon className="w-5 h-5 mr-2" />
-                <span>Jakarta, Indonesia</span>
+                <span>Pekanbaru, Indonesia</span>
               </div>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {/* Quick Links */}
-          {Object.entries(footerLinks).map(([category, links], index) => (
+          {/* {Object.entries(footerLinks).map(([category, links], index) => (
             <motion.div
               key={category}
               initial={{ opacity: 0, y: 20 }}
@@ -84,7 +84,7 @@ const Footer = () => {
                 ))}
               </ul>
             </motion.div>
-          ))}
+          ))} */}
         </div>
 
         {/* Bottom Bar */}
@@ -96,7 +96,7 @@ const Footer = () => {
         >
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2025 Jokita.id. All rights reserved.
+              © 2025 iriyapunyakamibagus?.id. All rights reserved.
             </p>
             <div className="flex space-x-4">
               <Link href="#" className="text-gray-400 hover:text-white transition-colors">

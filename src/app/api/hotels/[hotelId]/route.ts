@@ -71,14 +71,53 @@ export async function DELETE(
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    await prisma.hotel.delete({
-      where: { id: params.hotelId },
+    console.log("[HOTEL_DELETE] Mencoba menghapus hotel:", params.hotelId)
+
+    // Hapus semua relasi terlebih dahulu
+    await prisma.$transaction(async (tx) => {
+      // Hapus gambar hotel
+      await tx.gambar.deleteMany({
+        where: { hotelId: params.hotelId }
+      })
+
+      // Hapus fasilitas hotel
+      await tx.fasilitas.deleteMany({
+        where: { hotelId: params.hotelId }
+      })
+
+      // Hapus ulasan hotel
+      await tx.ulasan.deleteMany({
+        where: { hotelId: params.hotelId }
+      })
+
+      // Hapus kamar dan gambar kamar
+      const kamar = await tx.kamar.findMany({
+        where: { hotelId: params.hotelId },
+        select: { id: true }
+      })
+
+      for (const k of kamar) {
+        await tx.gambar.deleteMany({
+          where: { kamarId: k.id }
+        })
+      }
+
+      await tx.kamar.deleteMany({
+        where: { hotelId: params.hotelId }
+      })
+
+      // Terakhir, hapus hotel
+      await tx.hotel.delete({
+        where: { id: params.hotelId }
+      })
     })
+
+    console.log("[HOTEL_DELETE] Hotel dan relasinya berhasil dihapus")
     return NextResponse.json({ message: "Hotel berhasil dihapus" })
   } catch (error) {
-    console.error("Error deleting hotel:", error)
+    console.error("[HOTEL_DELETE] Error:", error)
     return NextResponse.json(
-      { message: "Terjadi kesalahan saat menghapus hotel" },
+      { error: "Terjadi kesalahan saat menghapus hotel" },
       { status: 500 }
     )
   }

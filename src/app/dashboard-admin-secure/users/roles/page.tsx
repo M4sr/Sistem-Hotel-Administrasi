@@ -22,7 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
-import { PERMISSIONS } from "@/lib/roles"
+import { PERMISSIONS } from "@/lib/permissions"
 import { prisma } from "@/lib/prisma"
 
 interface Role {

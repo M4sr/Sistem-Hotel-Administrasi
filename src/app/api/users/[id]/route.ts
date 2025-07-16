@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs"
 import * as z from "zod"
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
+import { Prisma } from "@prisma/client"
 
 const updateUserSchema = z.object({
   name: z.string().min(2, "Nama harus minimal 2 karakter"),
@@ -23,24 +24,95 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log("[USER_DELETE] Mencoba menghapus user dengan ID:", params.id)
+    
     const session = await getServerSession(authOptions)
     
     if (!session) {
+      console.log("[USER_DELETE] Tidak ada session")
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       )
     }
 
+    // Cek apakah user yang akan dihapus adalah user yang sedang login
+    if (session.user.id === params.id) {
+      console.log("[USER_DELETE] Mencoba menghapus user yang sedang login")
+      return NextResponse.json(
+        { error: "Tidak dapat menghapus akun yang sedang digunakan" },
+        { status: 400 }
+      )
+    }
+
+    // Cek apakah user ada sebelum mencoba menghapus relasi
+    const existingUser = await prisma.user.findUnique({
+      where: { id: params.id }
+    })
+
+    if (!existingUser) {
+      console.log("[USER_DELETE] User tidak ditemukan:", params.id)
+      return NextResponse.json(
+        { error: "User tidak ditemukan" },
+        { status: 404 }
+      )
+    }
+
+    console.log("[USER_DELETE] User ditemukan, memeriksa relasi")
+
+    // Cek apakah user memiliki relasi dengan data lain
+    const userWithRelations = await prisma.user.findUnique({
+      where: { id: params.id },
+      include: {
+        pemesanan: true,
+        ulasan: true
+      }
+    })
+
+    // Jika user memiliki relasi, hapus data relasi terlebih dahulu
+    if (userWithRelations?.pemesanan && userWithRelations.pemesanan.length > 0) {
+      console.log("[USER_DELETE] Menghapus data pemesanan terkait")
+      await prisma.pemesanan.deleteMany({
+        where: { userId: params.id }
+      })
+    }
+
+    if (userWithRelations?.ulasan && userWithRelations.ulasan.length > 0) {
+      console.log("[USER_DELETE] Menghapus data ulasan terkait")
+      await prisma.ulasan.deleteMany({
+        where: { userId: params.id }
+      })
+    }
+
+    console.log("[USER_DELETE] Menghapus user")
+    // Hapus user
     const user = await prisma.user.delete({
       where: {
         id: params.id
       }
     })
 
+    console.log("[USER_DELETE] User berhasil dihapus")
     return NextResponse.json(user)
   } catch (error) {
-    console.error("[USER_DELETE]", error)
+    console.error("[USER_DELETE] Error:", error)
+    
+    // Handle specific Prisma errors
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return NextResponse.json(
+          { error: "User tidak ditemukan" },
+          { status: 404 }
+        )
+      }
+      if (error.code === 'P2003') {
+        return NextResponse.json(
+          { error: "Tidak dapat menghapus user karena masih memiliki relasi dengan data lain" },
+          { status: 400 }
+        )
+      }
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

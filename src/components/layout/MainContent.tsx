@@ -4,17 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, Heart, Castle, Sun, Umbrella, TreePalm, Mountain, Landmark, Sparkles, Home as HomeIcon } from "lucide-react";
 
-const categories = [
-  { name: "Castles", icon: <Castle className="w-6 h-6" /> },
-  { name: "Icons", icon: <Landmark className="w-6 h-6" /> },
-  { name: "Beachfront", icon: <Umbrella className="w-6 h-6" /> },
-  { name: "Islands", icon: <Sun className="w-6 h-6" /> },
-  { name: "Countryside", icon: <TreePalm className="w-6 h-6" /> },
-  { name: "Tropical", icon: <Sparkles className="w-6 h-6" /> },
-  { name: "Mansions", icon: <HomeIcon className="w-6 h-6" /> },
-  { name: "Amazing views", icon: <Mountain className="w-6 h-6" /> },
-];
-
 interface MainContentProps {
   search: string;
   minRating: number;
@@ -68,19 +57,6 @@ export default function MainContent({ search, minRating, sort }: MainContentProp
 
   return (
     <>
-      {/* Kategori */}
-      <section className="w-full overflow-x-auto border-b bg-white">
-        <div className="flex gap-8 px-8 py-4 min-w-max">
-          {categories.map((cat, i) => (
-            <div key={cat.name} className="flex flex-col items-center cursor-pointer group">
-              <div className={`rounded-full p-3 mb-1 ${i === 0 ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700'} group-hover:bg-pink-600 group-hover:text-white transition`}>
-                {cat.icon}
-              </div>
-              <span className={`text-xs font-medium ${i === 0 ? 'text-gray-900' : 'text-gray-500'} group-hover:text-pink-600 transition`}>{cat.name}</span>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Grid Card Hotel */}
       <section className="mt-8">

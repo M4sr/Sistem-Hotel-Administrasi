@@ -8,7 +8,7 @@ import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Pencil, Trash2, MoreHorizontal } from "lucide-react"
+import { Pencil, Trash2, MoreHorizontal, AlertTriangle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
@@ -18,6 +18,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import React from "react"
+import { useToast } from "@/components/ui/use-toast"
 
 export type User = {
   id: string
@@ -112,49 +122,123 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const router = useRouter()
       const user = row.original
+      const [isDeleting, setIsDeleting] = React.useState(false)
+      const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
+      const { toast } = useToast()
 
       const handleEdit = () => {
         router.push(`/dashboard-admin-secure/users/edit/${user.id}`)
       }
 
       const handleDelete = async () => {
-        if (!confirm("Apakah Anda yakin ingin menghapus pengguna ini?")) return
-
         try {
+          setIsDeleting(true)
+          console.log("[USER_DELETE] Mencoba menghapus user:", user.id)
+          
           const response = await fetch(`/api/users/${user.id}`, {
             method: "DELETE",
+            cache: "no-store",
           })
 
-          if (!response.ok) throw new Error("Failed to delete user")
+          const data = await response.json()
 
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to delete user")
+          }
+
+          console.log("[USER_DELETE] User berhasil dihapus")
+          
+          // Revalidate dan refresh data
+          await fetch("/api/revalidate?path=/dashboard-admin-secure/users", {
+            method: "POST",
+          })
+          
+          toast({
+            title: "Berhasil",
+            description: "Pengguna berhasil dihapus",
+            variant: "default",
+          })
+
+          // Force refresh data
           router.refresh()
-        } catch (error) {
-          console.error("Error deleting user:", error)
-          alert("Gagal menghapus pengguna")
+          
+        } catch (error: any) {
+          console.error("[USER_DELETE] Error:", error)
+          toast({
+            title: "Gagal",
+            description: error.message || "Gagal menghapus pengguna",
+            variant: "destructive",
+          })
+        } finally {
+          setIsDeleting(false)
+          setShowDeleteDialog(false)
         }
       }
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Buka menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-            <DropdownMenuItem onClick={handleEdit}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleDelete}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Hapus
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Buka menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <DropdownMenuItem onClick={handleEdit}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => setShowDeleteDialog(true)}
+                className="text-red-600 focus:text-red-600"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Hapus
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-red-600">
+                  <AlertTriangle className="h-5 w-5" />
+                  Konfirmasi Hapus
+                </DialogTitle>
+                <DialogDescription>
+                  Apakah Anda yakin ingin menghapus pengguna <span className="font-semibold">{user.name}</span>? 
+                  Tindakan ini tidak dapat dibatalkan.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteDialog(false)}
+                  disabled={isDeleting}
+                >
+                  Batal
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Menghapus...
+                    </>
+                  ) : (
+                    "Hapus"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
       )
     },
   },

@@ -27,7 +27,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { sidebarData } from "./config/sidebar-data"
-import { checkMenuAccess } from "@/lib/roles"
+import { checkMenuAccess } from "@/lib/permissions"
 import { useSession } from "next-auth/react"
 
 const sidebarStyle = {
@@ -75,28 +75,33 @@ export function AppSidebar() {
   const filteredNavGroups = React.useMemo(() => {
     if (!session?.user?.permissions) return []
     
-    const userPermissions = session.user.permissions as string[]
-    
-    return sidebarData.navGroups.map(group => ({
-      ...group,
-      items: group.items.filter(item => {
-        // Check parent menu permissions
-        const hasParentAccess = checkMenuAccess(userPermissions, item.permissions || [])
-        
-        // Filter sub-items jika ada
-        const filteredSubItems = item.items?.filter(subItem => 
-            checkMenuAccess(userPermissions, subItem.permissions || [])
-        ) || []
-        
-        // Update item dengan sub-items yang sudah difilter
-        if (filteredSubItems.length > 0) {
-          item.items = filteredSubItems
-        }
-        
-        // Tampilkan menu jika punya akses parent atau punya sub-items yang bisa diakses
-        return hasParentAccess || filteredSubItems.length > 0
-      })
-    })).filter(group => group.items.length > 0)
+    try {
+      const userPermissions = session.user.permissions as string[]
+      
+      return sidebarData.navGroups.map(group => ({
+        ...group,
+        items: group.items.filter(item => {
+          // Check parent menu permissions
+          const hasParentAccess = checkMenuAccess(userPermissions, item.permissions || [])
+          
+          // Filter sub-items jika ada
+          const filteredSubItems = item.items?.filter(subItem => 
+              checkMenuAccess(userPermissions, subItem.permissions || [])
+          ) || []
+          
+          // Update item dengan sub-items yang sudah difilter
+          if (filteredSubItems.length > 0) {
+            item.items = filteredSubItems
+          }
+          
+          // Tampilkan menu jika punya akses parent atau punya sub-items yang bisa diakses
+          return hasParentAccess || filteredSubItems.length > 0
+        })
+      })).filter(group => group.items.length > 0)
+    } catch (error) {
+      console.error("Error filtering navigation:", error)
+      return []
+    }
   }, [session?.user?.permissions])
 
   // Tampilkan loading state yang konsisten

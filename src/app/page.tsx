@@ -132,7 +132,7 @@ const HeroSection = () => {
         </div>
 
         {/* Search Bar */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
@@ -149,7 +149,7 @@ const HeroSection = () => {
               Cari
             </button>
           </div>
-        </motion.div>
+        </motion.div> */}
 
         {/* CTA Button */}
         <motion.div
@@ -211,8 +211,10 @@ const PopularHotels = () => {
     fetch("/api/hotels")
       .then((res) => res.json())
       .then((data) => {
+        // Pastikan data array sebelum filter
+        const arr = Array.isArray(data) ? data : [];
         // Filter hotel rating >= 4 dan ambil maksimal 3
-        const populer = data
+        const populer = arr
           .filter((h: any) => (h.rating ?? 0) >= 4)
           .sort((a: any, b: any) => (b.rating ?? 0) - (a.rating ?? 0))
           .slice(0, 3);

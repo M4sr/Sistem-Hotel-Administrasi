@@ -189,24 +189,6 @@ export const sidebarData = {
             }
           ],
         },
-        {
-          title: "Media",
-          url: "/dashboard-admin-secure/media",
-          icon: Image,
-          permissions: [PERMISSIONS.HOTELS.UPDATE],
-          items: [
-            {
-              title: "Galeri",
-              url: "/dashboard-admin-secure/media/gallery",
-              permissions: [PERMISSIONS.HOTELS.VIEW],
-            },
-            {
-              title: "Upload Gambar",
-              url: "/dashboard-admin-secure/media/upload",
-              permissions: [PERMISSIONS.HOTELS.CREATE],
-            }
-          ],
-        }
       ]
     },
     {

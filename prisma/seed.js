@@ -10,7 +10,7 @@ const PERMISSIONS = {
   },
   HOTELS: {
     VIEW: "hotels:view",
-    CREATE: "hotels:create",
+    CREATE: "hotels:create",    
     UPDATE: "hotels:update",
     DELETE: "hotels:delete",
   },
